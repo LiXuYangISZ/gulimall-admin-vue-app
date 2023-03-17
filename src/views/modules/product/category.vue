@@ -24,6 +24,14 @@
           >
             Append
           </el-button>
+
+          <el-button
+            type="text"
+            size="mini"
+            @click="() => edit(data)"
+          >
+            Edit
+          </el-button>
           <el-button
             v-if="node.childNodes.length==0"
             type="text"
@@ -37,14 +45,27 @@
     </el-tree>
 
     <el-dialog
-      title="提示"
+      :title="title"
       :visible.sync="dialogVisible"
       width="30%"
+      :close-on-click-modal="false"
     >
       <el-form :model="category">
         <el-form-item label="分类名称">
           <el-input
             v-model="category.name"
+            autocomplete="off"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="图标">
+          <el-input
+            v-model="category.icon"
+            autocomplete="off"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="计量单位">
+          <el-input
+            v-model="category.productUnit"
             autocomplete="off"
           ></el-input>
         </el-form-item>
@@ -56,7 +77,7 @@
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button
           type="primary"
-          @click="addCategory"
+          @click="submitData"
         >确 定</el-button>
       </span>
     </el-dialog>
@@ -73,7 +94,18 @@ export default {
   components: {},
   data() {
     return {
-      category: { name: "", parentCid: 0, catLevel: 0, showStatus: 1, sort: 0 }, // 表单信息
+      title: "", //对话框的标题
+      dialogType: "", // 对话框的类型：edit,add
+      category: {
+        name: "",
+        parentCid: 0,
+        catLevel: 0,
+        showStatus: 1,
+        sort: 0,
+        icon: "",
+        productUnit: "",
+        catId: null,
+      }, // 表单信息
       dialogVisible: false, //对话框的状态
       data: [], // 树的数据
       expandedKey: [], // 默认展开的节点的 key 的数组
@@ -96,13 +128,68 @@ export default {
         this.data = data.data;
       });
     },
+    // 当点击edit会触发
+    edit(data) {
+      console.log("要修改的数据:", data);
+      this.title = "修改分类";
+      this.dialogType = "edit";
+      this.dialogVisible = true;
+      // 发送请求获取当前节点的最新数据【这是为了防止在页面长时间停留，导致页面数据已经被其他人修改过了，所以不能直接用页面上的数据进行修改】
+      this.$http({
+        url: this.$http.adornUrl(`/product/category/info/${data.catId}`),
+        method: "get",
+      }).then(({ data }) => {
+        console.log("请求得到的数据,", data);
+        this.category.name = data.data.name;
+        this.category.icon = data.data.icon;
+        this.category.productUnit = data.data.productUnit;
+        this.category.catId = data.data.catId;
+        this.category.parentCid = data.data.parentCid;
+      });
+    },
     // 当点击append会触发
     append(data) {
-      // 清空对话框
-      this.category.name = "";
+      this.title = "添加分类";
+      this.dialogType = "add";
+      this.category.name = ""; // 清空对话框
       this.dialogVisible = true;
       this.category.parentCid = data.catId;
       this.category.catLevel = data.catLevel * 1 + 1; //为了防止是字符串，所以需要*1
+      this.category.catId = null;
+      this.category.icon = "";
+      this.category.productUnit = "";
+      this.category.sort = 0;
+      this.category.showStatus = 1;
+    },
+
+    //提交数据
+    submitData() {
+      if (this.dialogType == "add") {
+        this.addCategory();
+      } else if (this.dialogType == "edit") {
+        this.editCategory();
+      }
+    },
+
+    // 修改三级分类数据
+    editCategory() {
+      var { catId, name, icon, productUnit } = this.category;
+      this.$http({
+        url: this.$http.adornUrl("/product/category/update"),
+        method: "post",
+        data: this.$http.adornData({ catId, name, icon, productUnit }, false),
+      }).then(({ data }) => {
+        this.$message({
+          type: "success",
+          message: "菜单修改成功!",
+        });
+        // 设置需要默认展开的菜单[删除节点的父节点]
+        this.expandedKey = [this.category.parentCid];
+        // 刷新出新的菜单
+        this.getMenus();
+        // 关闭对话框
+        this.dialogVisible = false;
+      });
     },
 
     // 删除
@@ -148,13 +235,12 @@ export default {
           message: "菜单保存成功!",
         });
         // 设置需要默认展开的菜单[删除节点的父节点]
-        this.expandedKey=[this.category.parentCid]
+        this.expandedKey = [this.category.parentCid];
         // 刷新出新的菜单
         this.getMenus();
         // 关闭对话框
         this.dialogVisible = false;
       });
-      
     },
   },
   //监听属性 类似于data概念
