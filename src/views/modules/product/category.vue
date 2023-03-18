@@ -9,6 +9,8 @@
       show-checkbox
       node-key="catId"
       :default-expanded-keys="expandedKey"
+      draggable
+      :allow-drop="allowDrop"
     >
       <span
         class="custom-tree-node"
@@ -94,6 +96,7 @@ export default {
   components: {},
   data() {
     return {
+      maxLevel:0,// 最大深度
       title: "", //对话框的标题
       dialogType: "", // 对话框的类型：edit,add
       category: {
@@ -116,6 +119,40 @@ export default {
     };
   },
   methods: {
+    /**
+     * 
+     * @param {*} draggingNode  正在拖拽的节点
+     * @param {*} dropNode      参考节点
+     * @param {*} type          类型
+     * deep算出的是当前节点拥有的深度。比如5楼到2楼有几楼高：5-2+1=4
+     * 假设a挪到b中，则只要a拥有的深度+b的节点<=3就行
+     * 假设a挪到b平级，则a+b的父节点<=3就行
+     */
+    allowDrop(draggingNode, dropNode, type) {
+      // 被拖动的当前节点以及所在的父节点总层数不能大于3
+      console.log("allowDrop:",draggingNode, dropNode, type);
+      this.countNodeLevel(draggingNode.data)//计算子节点的maxLevel
+      let deep = this.maxLevel - draggingNode.data.catLevel+1;
+      console.log("深度：",deep);
+      if(type =="inner"){
+        return (deep + dropNode.level) <= 3;
+      }else{
+        return (deep + dropNode.parent.level) <= 3;
+      }
+    },
+    // 计算节点的maxLevel
+    countNodeLevel(node){
+      this.maxLevel = node.catLevel
+      //找到所有子节点，求出最大深度
+      if(node.children != null && node.children.length > 0){
+        for(let i = 0; i < node.children.length;i++){
+          if(node.children[i].catLevel > this.maxLevel){
+            this.maxLevel = node.children[i].catLevel;
+          }
+          this.countNodeLevel(node.children[i]);
+        }
+      }
+    },
     handleNodeClick(data) {
       console.log(data);
     },
