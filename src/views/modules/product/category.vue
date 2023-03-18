@@ -158,7 +158,25 @@ export default {
         }
       }
 
+      // 更新数据库中的数据
       console.log("updateNodes",this.updateNodes);
+      this.$http({
+      url: this.$http.adornUrl('/product/category/update/sort'),
+      method: 'post',
+      data: this.$http.adornData(this.updateNodes, false)
+      }).then(({ data }) => { 
+        this.$message({
+          message:"菜单顺序修改成功~",
+          type:"success"
+        });
+        // 刷新出新的菜单
+        this.getMenus();
+        // 设置需要默认展开的菜单
+        this.expandedKey = [pCid];
+        // 初始化数据
+        this.updateNodes = [];
+        this.maxLevel = 0;
+      });
     },
     /**
      * 更新子节点的层级
