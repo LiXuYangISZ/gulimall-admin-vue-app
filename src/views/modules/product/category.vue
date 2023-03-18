@@ -11,6 +11,7 @@
       :default-expanded-keys="expandedKey"
       draggable
       :allow-drop="allowDrop"
+      @node-drop="handleDrop"
     >
       <span
         class="custom-tree-node"
@@ -96,7 +97,8 @@ export default {
   components: {},
   data() {
     return {
-      maxLevel:0,// 最大深度
+      updateNodes:[],//需要更新的节点的信息
+      maxLevel: 0, // 最大深度
       title: "", //对话框的标题
       dialogType: "", // 对话框的类型：edit,add
       category: {
@@ -120,7 +122,59 @@ export default {
   },
   methods: {
     /**
-     * 
+     * 当前拖拽成功后触发的事件
+     * @param {*} draggingNode 
+     * @param {*} dropNode 
+     * @param {*} dropType 
+     * @param {*} ev 
+     */
+    handleDrop(draggingNode, dropNode, dropType, ev) {
+      console.log("tree drop: ", dropNode.label, dropType);
+      // 1.当前节点最新的父节点id
+      let pCid = 0;
+      let siblings = null;
+      if(dropType == "before" || dropType == "after"){
+        pCid = dropNode.parent.data.catId == undefined ? 0 : dropNode.parent.data.catId;
+        siblings = dropNode.parent.childNodes;
+      }else{
+        pCid = dropNode.data.catId;
+        siblings = dropNode.childNodes;
+      }
+
+      // 2.当前拖拽节点的最新顺序
+      for(let i = 0; i < siblings.length;i++){
+        if(siblings[i].data.catId == draggingNode.data.catId){
+          // 如果遍历的正是当前正在拖拽的节点
+          let catLevel = draggingNode.level;
+          if(siblings[i].level != draggingNode.level){
+            // 当前节点的层级发生变化
+            catLevel = siblings[i].level
+            // 修改他子节点的层级
+            this.updateChildNodeLevel(siblings[i]);
+          }
+          this.updateNodes.push({catId:siblings[i].data.catId,sort:i,parentCid:pCid,catLevel:catLevel})
+        }else{//如果是相邻的节点
+          this.updateNodes.push({catId:siblings[i].data.catId,sort:i})
+        }
+      }
+
+      console.log("updateNodes",this.updateNodes);
+    },
+    /**
+     * 更新子节点的层级
+     * @param {*} node 
+     */
+    updateChildNodeLevel(node){
+      if(node.childNodes.length > 0){
+        for(let i = 0;i < node.childNodes.length; i++){
+          var cNode = node.childNodes[i].data;
+          this.updateNodes.push({catId:cNode.catId,catLevel:node.childNodes[i].level});
+          this.updateChildNodeLevel(node.childNodes[i]);
+        }
+      }
+    },
+    /**
+     * 当前拖拽是否允许，true：允许拖拽；false：不允许拖拽
      * @param {*} draggingNode  正在拖拽的节点
      * @param {*} dropNode      参考节点
      * @param {*} type          类型
@@ -130,23 +184,23 @@ export default {
      */
     allowDrop(draggingNode, dropNode, type) {
       // 被拖动的当前节点以及所在的父节点总层数不能大于3
-      console.log("allowDrop:",draggingNode, dropNode, type);
-      this.countNodeLevel(draggingNode.data)//计算子节点的maxLevel
-      let deep = this.maxLevel - draggingNode.data.catLevel+1;
-      console.log("深度：",deep);
-      if(type =="inner"){
-        return (deep + dropNode.level) <= 3;
-      }else{
-        return (deep + dropNode.parent.level) <= 3;
+      console.log("allowDrop:", draggingNode, dropNode, type);
+      this.countNodeLevel(draggingNode.data); //计算子节点的maxLevel
+      let deep = this.maxLevel - draggingNode.data.catLevel + 1;
+      console.log("深度：", deep);
+      if (type == "inner") {
+        return deep + dropNode.level <= 3;
+      } else {
+        return deep + dropNode.parent.level <= 3;
       }
     },
     // 计算节点的maxLevel
-    countNodeLevel(node){
-      this.maxLevel = node.catLevel
+    countNodeLevel(node) {
+      this.maxLevel = node.catLevel;
       //找到所有子节点，求出最大深度
-      if(node.children != null && node.children.length > 0){
-        for(let i = 0; i < node.children.length;i++){
-          if(node.children[i].catLevel > this.maxLevel){
+      if (node.children != null && node.children.length > 0) {
+        for (let i = 0; i < node.children.length; i++) {
+          if (node.children[i].catLevel > this.maxLevel) {
             this.maxLevel = node.children[i].catLevel;
           }
           this.countNodeLevel(node.children[i]);
