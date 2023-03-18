@@ -1,6 +1,12 @@
 <!--  -->
 <template>
   <div>
+    <el-switch
+      v-model="draggable"
+      active-text="开启拖拽"
+      inactive-text="关闭拖拽"
+    >
+    </el-switch>
     <el-tree
       :data="data"
       :props="defaultProps"
@@ -9,7 +15,7 @@
       show-checkbox
       node-key="catId"
       :default-expanded-keys="expandedKey"
-      draggable
+      :draggable="draggable"
       :allow-drop="allowDrop"
       @node-drop="handleDrop"
     >
@@ -97,6 +103,7 @@ export default {
   components: {},
   data() {
     return {
+      draggable: false,
       updateNodes:[],//需要更新的节点的信息
       maxLevel: 0, // 最大深度
       title: "", //对话框的标题
