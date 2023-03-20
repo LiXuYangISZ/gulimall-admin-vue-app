@@ -62,7 +62,7 @@
         prop="sort"
       >
         <el-input
-          v-model="dataForm.sort"
+          v-model.number="dataForm.sort"
           placeholder="排序"
         ></el-input>
       </el-form-item>
@@ -92,9 +92,9 @@ export default {
         name: "",
         logo: "",
         descript: "",
-        showStatus: "",
+        showStatus: 1,
         firstLetter: "",
-        sort: "",
+        sort: 0,
       },
       dataRule: {
         name: [{ required: true, message: "品牌名不能为空", trigger: "blur" }],
@@ -112,9 +112,26 @@ export default {
           },
         ],
         firstLetter: [
-          { required: true, message: "检索首字母不能为空", trigger: "blur" },
+          { validator: (rule, value, callback) => {
+            if(value === ''){
+              callback(new Error('首字母必须填写'));
+            }else if(!/^[a-zA-Z]$/.test(value)){
+              callback(new Error('首字母必须是a-z或者A-Z之间,且只能填写个'));
+            }else{
+              callback();
+            }
+          }, trigger: "blur" },
         ],
-        sort: [{ required: true, message: "排序不能为空", trigger: "blur" }],
+        sort: [{  validator:(rule, value, callback)=>{
+          if(value === ''){
+              callback(new Error('排序字段必须填写'));
+            }else if(!Number.isInteger(value) || value < 0){
+              callback(new Error('排序字段必须是一个非负整数'));
+            }else{
+              callback();
+            }
+          
+        }, trigger: "blur" }],
       },
     };
   },
