@@ -62,11 +62,12 @@
         label="品牌logo地址"
       >
         <template slot-scope="scope">
-          <el-image
-            style="width: 100px; height: 80px"
+          <!-- <el-image
+            
             :src="scope.row.logo"
             fit="fill"
-          ></el-image>
+          ></el-image> -->
+          <img :src="scope.row.logo" style="width: 100px; height: 100px">
         </template>
       </el-table-column>
       <el-table-column
@@ -178,7 +179,7 @@ export default {
       let { brandId, showStatus } = data;
       // 发送请求修改状态
       this.$http({
-        url: this.$http.adornUrl("/product/brand/update"),
+        url: this.$http.adornUrl("/product/brand/update/status"),
         method: "post",
         data: this.$http.adornData({ brandId, showStatus }, false),
       }).then(({ data }) => {
