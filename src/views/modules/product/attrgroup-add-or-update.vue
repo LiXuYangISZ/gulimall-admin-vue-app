@@ -57,7 +57,7 @@
           placeholder="所属分类id"
         ></el-input> -->
         <el-cascader
-          v-model="dataForm.catelogPath"
+          v-model="catelogPath"
           :options="categorys"
           :props="props"
           filterable
@@ -88,6 +88,7 @@ export default {
         children:"children"
       },
       categorys: [],//页面渲染的数据
+      catelogPath: [],//用户选中的分类，是一个包含三个数的数组
       visible: false,
       dataForm: {
         attrGroupId: 0,
@@ -95,7 +96,6 @@ export default {
         sort: "",
         descript: "",
         icon: "",
-        catelogPath: [],//用户选中的分类，是一个包含三个数的数组
         catelogId:0 //提交的数据
       },
       dataRule: {
@@ -116,7 +116,7 @@ export default {
   methods: {
     // 当对话框关闭时触发
     dialogClose(){
-      this.dataForm.catelogPath = [];
+      this.catelogPath = [];
     },
     // 查询三级分类
     getCategorys() {
@@ -147,7 +147,7 @@ export default {
               this.dataForm.icon = data.attrGroup.icon;
               this.dataForm.catelogId = data.attrGroup.catelogId;
               // 查出catelogId的完成路径
-              this.dataForm.catelogPath = data.attrGroup.catelogPath;
+              this.catelogPath = data.attrGroup.catelogPath;
             }
           });
         }
@@ -170,7 +170,7 @@ export default {
               sort: this.dataForm.sort,
               descript: this.dataForm.descript,
               icon: this.dataForm.icon,
-              catelogId: this.dataForm.catelogPath[ this.dataForm.catelogPath.length-1],
+              catelogId: this.catelogPath[ this.catelogPath.length-1],
             }),
           }).then(({ data }) => {
             if (data && data.code === 0) {
