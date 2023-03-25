@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :title="!dataForm.id ? '新增' : '修改'"
+    :title="!dataForm.attrId ? '新增' : '修改'"
     :close-on-click-modal="false"
     :visible.sync="visible"
     @closed="dialogClose"
@@ -153,6 +153,14 @@ export default {
             trigger: "blur"
           }
         ],
+        attrGroupId:[
+        {
+            required: true,
+            message: "所属分组不能为空",
+            trigger: "blur"
+          }
+        ]
+        ,
         showDesc: [
           {
             required: true,
@@ -237,6 +245,7 @@ export default {
     },
     // 表单提交
     dataFormSubmit() {
+      console.log(this.dataForm.id);
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
           this.$http({
