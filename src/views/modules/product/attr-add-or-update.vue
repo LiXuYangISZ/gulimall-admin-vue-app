@@ -14,7 +14,6 @@
         <el-select v-model="dataForm.attrType" placeholder="请选择">
           <el-option label="规格参数" :value="1"></el-option>
           <el-option label="销售属性" :value="0"></el-option>
-          <el-option label="以上都是" :value="2"></el-option>
         </el-select>
       </el-form-item>
 
@@ -153,14 +152,15 @@ export default {
             trigger: "blur"
           }
         ],
-        attrGroupId:[
-        {
-            required: true,
-            message: "所属分组不能为空",
-            trigger: "blur"
-          }
-        ]
-        ,
+        // 所属分组可以为空，这样既可以分组关联属性，又可以在创建属性的时候指定~
+        // attrGroupId:[
+        // {
+        //     required: true,
+        //     message: "所属分组不能为空",
+        //     trigger: "blur"
+        //   }
+        // ]
+        // ,
         showDesc: [
           {
             required: true,

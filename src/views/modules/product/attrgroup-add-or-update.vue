@@ -49,7 +49,7 @@
         ></el-input>
       </el-form-item>
       <el-form-item
-        label="所属分类id"
+        label="所属分类"
         prop="catelogId"
       >
         <!-- <el-input
