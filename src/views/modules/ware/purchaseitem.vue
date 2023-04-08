@@ -176,7 +176,7 @@ export default {
         method: "get",
         params: this.$http.adornParams({})
       }).then(({ data }) => {
-        this.purchasetableData = data.page.list;
+        this.purchasetableData = data.list;
       });
     },
     handleBatchCommand(cmd) {
