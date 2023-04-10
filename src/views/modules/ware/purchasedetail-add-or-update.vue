@@ -11,15 +11,48 @@
       @keyup.enter.native="dataFormSubmit()"
       label-width="120px"
     >
-      <el-form-item label="采购商品id" prop="skuId">
-        <el-input v-model="dataForm.skuId" placeholder="采购商品id"></el-input>
+      <el-form-item
+        label="采购商品id"
+        prop="skuId"
+      >
+        <el-input
+          v-model="dataForm.skuId"
+          placeholder="采购商品id"
+        ></el-input>
       </el-form-item>
-      <el-form-item label="采购数量" prop="skuNum">
-        <el-input v-model="dataForm.skuNum" placeholder="采购数量"></el-input>
+      <el-form-item
+        label="采购数量"
+        prop="skuNum"
+      >
+        <el-input
+          v-model="dataForm.skuNum"
+          placeholder="采购数量"
+        ></el-input>
       </el-form-item>
-      <el-form-item label="仓库" prop="wareId">
-        <el-select v-model="dataForm.wareId" placeholder="请选择仓库" clearable>
-          <el-option :label="w.name" :value="w.id" v-for="w in wareList" :key="w.id"></el-option>
+      <el-form-item
+        label="采购价格"
+        prop="skuPrice"
+      >
+        <el-input
+          v-model="dataForm.skuPrice"
+          placeholder="采购价格"
+        ></el-input>
+      </el-form-item>
+      <el-form-item
+        label="仓库"
+        prop="wareId"
+      >
+        <el-select
+          v-model="dataForm.wareId"
+          placeholder="请选择仓库"
+          clearable
+        >
+          <el-option
+            :label="w.name"
+            :value="w.id"
+            v-for="w in wareList"
+            :key="w.id"
+          ></el-option>
         </el-select>
       </el-form-item>
       <!-- [0新建，1已分配，2正在采购，3已完成，4采购失败] -->
@@ -33,9 +66,15 @@
         </el-select>
       </el-form-item>-->
     </el-form>
-    <span slot="footer" class="dialog-footer">
+    <span
+      slot="footer"
+      class="dialog-footer"
+    >
       <el-button @click="visible = false">取消</el-button>
-      <el-button type="primary" @click="dataFormSubmit()">确定</el-button>
+      <el-button
+        type="primary"
+        @click="dataFormSubmit()"
+      >确定</el-button>
     </span>
   </el-dialog>
 </template>
@@ -53,20 +92,41 @@ export default {
         skuNum: "",
         skuPrice: "",
         wareId: "",
-        status: 0
+        status: 0,
       },
       dataRule: {
         skuId: [
-          { required: true, message: "采购商品id不能为空", trigger: "blur" }
+          { required: true, message: "采购商品id不能为空", trigger: "blur" },
         ],
+        // TODO 这里的校验需要注意：由于我们页面上的都是String类型，所有最好有个整数控件来约束一下，不然就难搞了~
         skuNum: [
-          { required: true, message: "采购数量不能为空", trigger: "blur" }
+          { required: true, message: "采购数量不能为空", trigger: "blur" },
+          // {
+          //   type: "integer",
+          //   message: "采购数量必须为整数类型",
+          //   trigger: "blur",
+          // },
         ],
-        wareId: [{ required: true, message: "仓库id不能为空", trigger: "blur" }]
-      }
+        skuPrice: [
+          { required: true, message: "采购价格不能为空", trigger: "blur" },
+          // {
+          //   validator: (rule, value, callback) => {
+          //     if (value <= 0 || !Number.isInteger(value)) {
+          //       callback(new Error("采购价格必须是正整数"));
+          //     } else {
+          //       callback();
+          //     }
+          //   },
+          //   trigger: "blur",
+          // },
+        ],
+        wareId: [
+          { required: true, message: "仓库id不能为空", trigger: "blur" },
+        ],
+      },
     };
   },
-  created(){
+  created() {
     this.getWares();
   },
   methods: {
@@ -76,8 +136,8 @@ export default {
         method: "get",
         params: this.$http.adornParams({
           page: 1,
-          limit: 500
-        })
+          limit: 500,
+        }),
       }).then(({ data }) => {
         this.wareList = data.page.list;
       });
@@ -93,7 +153,7 @@ export default {
               `/ware/purchasedetail/info/${this.dataForm.id}`
             ),
             method: "get",
-            params: this.$http.adornParams()
+            params: this.$http.adornParams(),
           }).then(({ data }) => {
             if (data && data.code === 0) {
               this.dataForm.purchaseId = data.purchaseDetail.purchaseId;
@@ -109,7 +169,7 @@ export default {
     },
     // 表单提交
     dataFormSubmit() {
-      this.$refs["dataForm"].validate(valid => {
+      this.$refs["dataForm"].validate((valid) => {
         if (valid) {
           this.$http({
             url: this.$http.adornUrl(
@@ -123,8 +183,8 @@ export default {
               skuNum: this.dataForm.skuNum,
               skuPrice: this.dataForm.skuPrice,
               wareId: this.dataForm.wareId,
-              status: this.dataForm.status
-            })
+              status: this.dataForm.status,
+            }),
           }).then(({ data }) => {
             if (data && data.code === 0) {
               this.$message({
@@ -134,7 +194,7 @@ export default {
                 onClose: () => {
                   this.visible = false;
                   this.$emit("refreshDataList");
-                }
+                },
               });
             } else {
               this.$message.error(data.msg);
@@ -142,7 +202,15 @@ export default {
           });
         }
       });
-    }
-  }
+    },
+    // 采购价格校验
+    validateSkuPrice(rule, value, callback) {
+      if (value <= 0 || !Number.isInteger(value)) {
+        callback(new Error("采购价格必须是正整数"));
+      } else {
+        callback();
+      }
+    },
+  },
 };
 </script>

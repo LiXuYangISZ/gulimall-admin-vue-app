@@ -136,6 +136,11 @@ export default {
       let items = this.dataListSelections.map(item => {
         return item.id;
       });
+      // TODO ①如果正在采购，或者采购完成状态，则无法合单
+      //      ②如果当中的某些需求分配过采购单，且不是①
+      //      这里需要判断确定用户是否需要进行修改，如果确定修改，则需要把未分配的取消，再把所有选中的加入到新的单子中
+      //      ③如果所有需求都是新建状态，则进行下列合并操作 
+
       if (!this.purchaseId) {
         this.$confirm(
           "没有选择任何【采购单】，将自动创建新单进行合并。确认吗？",

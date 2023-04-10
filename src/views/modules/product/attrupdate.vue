@@ -3,14 +3,20 @@
     <el-row :gutter="20">
       <el-col :span="16">
         <el-card class="box-card">
-          <el-tabs tab-position="left" style="width:98%">
+          <el-tabs
+            tab-position="left"
+            style="width:98%"
+          >
             <el-tab-pane
               :label="group.attrGroupName"
               v-for="(group,gidx) in dataResp.attrGroups"
               :key="group.attrGroupId"
             >
               <!-- 遍历属性,每个tab-pane对应一个表单，每个属性是一个表单项  spu.baseAttrs[0] = [{attrId:xx,val:}]-->
-              <el-form ref="form" :model="dataResp">
+              <el-form
+                ref="form"
+                :model="dataResp"
+              >
                 <el-form-item
                   :label="attr.attrName"
                   v-for="(attr,aidx) in group.attrs"
@@ -46,7 +52,11 @@
             </el-tab-pane>
           </el-tabs>
           <div style="margin:auto">
-            <el-button type="success" style="float:right" @click="submitSpuAttrs">确认修改</el-button>
+            <el-button
+              type="success"
+              style="float:right"
+              @click="submitSpuAttrs"
+            >确认修改</el-button>
           </div>
         </el-card>
       </el-col>
@@ -65,14 +75,14 @@ export default {
       dataResp: {
         //后台返回的所有数据
         attrGroups: [],
-        baseAttrs: []
+        baseAttrs: [],
       },
-      spuAttrsMap: {}
+      spuAttrsMap: {},
     };
   },
   computed: {},
   methods: {
-    clearData(){
+    clearData() {
       this.dataResp.attrGroups = [];
       this.dataResp.baseAttrs = [];
       this.spuAttrsMap = {};
@@ -80,9 +90,9 @@ export default {
     getSpuBaseAttrs() {
       this.$http({
         url: this.$http.adornUrl(`/product/attr/base/listforspu/${this.spuId}`),
-        method: "get"
+        method: "get",
       }).then(({ data }) => {
-        data.data.forEach(item => {
+        data.data.forEach((item) => {
           this.spuAttrsMap["" + item.attrId] = item;
         });
         console.log("~~~~", this.spuAttrsMap);
@@ -100,28 +110,30 @@ export default {
           `/product/attrgroup/${this.catalogId}/withattr`
         ),
         method: "get",
-        params: this.$http.adornParams({})
+        params: this.$http.adornParams({}),
       }).then(({ data }) => {
         //先对表单的baseAttrs进行初始化
-        data.data.forEach(item => {
+        data.data.forEach((item) => {
           let attrArray = [];
-          item.attrs.forEach(attr => {
-            let v = "";
-            if (_this.spuAttrsMap["" + attr.attrId]) {
-              v = _this.spuAttrsMap["" + attr.attrId].attrValue.split(";");
-              if (v.length == 1) {
-                v = v[0] + "";
+          if (item.attrs != null) {
+            item.attrs.forEach((attr) => {
+              let v = "";
+              if (_this.spuAttrsMap["" + attr.attrId]) {
+                v = _this.spuAttrsMap["" + attr.attrId].attrValue.split(";");
+                if (v.length == 1 && attr.valueType == 0 || attr.valueType == null) {
+                  v = v[0] + "";
+                }
               }
-            }
-            attrArray.push({
-              attrId: attr.attrId,
-              attrName: attr.attrName,
-              attrValues: v,
-              showDesc: _this.spuAttrsMap["" + attr.attrId]
-                ? _this.spuAttrsMap["" + attr.attrId].quickShow
-                : attr.showDesc
+              attrArray.push({
+                attrId: attr.attrId,
+                attrName: attr.attrName,
+                attrValues: v,
+                showDesc: _this.spuAttrsMap["" + attr.attrId]
+                  ? _this.spuAttrsMap["" + attr.attrId].quickShow
+                  : attr.showDesc,
+              });
             });
-          });
+          }
           this.dataResp.baseAttrs.push(attrArray);
         });
         this.dataResp.attrGroups = data.data;
@@ -131,8 +143,8 @@ export default {
       console.log("·····", this.dataResp.baseAttrs);
       //spu_id  attr_id  attr_name             attr_value             attr_sort  quick_show
       let submitData = [];
-      this.dataResp.baseAttrs.forEach(item => {
-        item.forEach(attr => {
+      this.dataResp.baseAttrs.forEach((item) => {
+        item.forEach((attr) => {
           let val = "";
           if (attr.attrValues instanceof Array) {
             val = attr.attrValues.join(";");
@@ -145,7 +157,7 @@ export default {
               attrId: attr.attrId,
               attrName: attr.attrName,
               attrValue: val,
-              quickShow: attr.showDesc
+              quickShow: attr.showDesc,
             });
           }
         });
@@ -154,27 +166,27 @@ export default {
       this.$confirm("修改商品规格信息, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning"
+        type: "warning",
       })
         .then(() => {
           this.$http({
             url: this.$http.adornUrl(`/product/attr/update/${this.spuId}`),
             method: "post",
-            data: this.$http.adornData(submitData, false)
+            data: this.$http.adornData(submitData, false),
           }).then(({ data }) => {
             this.$message({
               type: "success",
-              message: "属性修改成功!"
+              message: "属性修改成功!",
             });
           });
         })
         .catch((e) => {
           this.$message({
             type: "info",
-            message: "已取消修改"+e
+            message: "已取消修改" + e,
           });
         });
-    }
+    },
   },
   created() {},
   activated() {
@@ -184,7 +196,7 @@ export default {
       this.showBaseAttrs();
       this.getSpuBaseAttrs();
     }
-  }
+  },
 };
 </script>
 <style scoped>
