@@ -19,18 +19,55 @@
     >
       <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
       <el-table-column prop="id" header-align="center" align="center" label="id"></el-table-column>
-      <el-table-column prop="levelId" header-align="center" align="center" label="会员等级"></el-table-column>
+      <el-table-column prop="levelId" header-align="center" align="center" label="会员等级">
+        <template slot-scope="scope" >
+          <span v-if="scope.row.levelId === 1">注册会员</span> 
+          <span v-else-if="scope.row.levelId === 2">铜牌会员</span> 
+          <span v-else-if="scope.row.levelId === 3">银牌会员</span> 
+          <span v-else-if="scope.row.levelId === 4">金牌会员</span> 
+          <span v-else-if="scope.row.levelId === 5">钻石会员</span> 
+          <span v-else>未知会员</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="username" header-align="center" align="center" label="用户名"></el-table-column>
       <el-table-column prop="nickname" header-align="center" align="center" label="昵称"></el-table-column>
       <el-table-column prop="mobile" header-align="center" align="center" label="手机号码"></el-table-column>
       <el-table-column prop="email" header-align="center" align="center" label="邮箱"></el-table-column>
-      <el-table-column prop="header" header-align="center" align="center" label="头像"></el-table-column>
-      <el-table-column prop="gender" header-align="center" align="center" label="性别"></el-table-column>
+      <el-table-column prop="header" header-align="center" align="center" label="头像">
+        <template slot-scope="scope">
+          <!-- <el-image
+            
+            :src="scope.row.logo"
+            fit="fill"
+          ></el-image> -->
+          <img
+            :src="scope.row.header"
+            style="width: 100px; height: 100px"
+          >
+        </template>
+      </el-table-column>
+      <el-table-column prop="gender" header-align="center" align="center" label="性别">
+        <template slot-scope="scope">
+          <span v-if="scope.row.gender === 0">男</span> 
+          <span v-else-if="scope.row.gender === 1">女</span> 
+          <span v-else>未知</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="birth" header-align="center" align="center" label="生日"></el-table-column>
       <el-table-column prop="city" header-align="center" align="center" label="所在城市"></el-table-column>
       <el-table-column prop="job" header-align="center" align="center" label="职业"></el-table-column>
       <el-table-column prop="sign" header-align="center" align="center" label="个性签名"></el-table-column>
-      <el-table-column prop="sourceType" header-align="center" align="center" label="用户来源"></el-table-column>
+      <el-table-column prop="sourceType" header-align="center" align="center" label="用户来源" width="110px">
+        <template slot-scope="scope" >
+          <span v-if="scope.row.sourceType === 0">网站</span> 
+          <span v-else-if="scope.row.sourceType === 1">微博</span> 
+          <span v-else-if="scope.row.sourceType === 2">Gitee</span> 
+          <span v-else-if="scope.row.sourceType === 3">微信</span> 
+          <span v-else-if="scope.row.sourceType === 4">QQ</span> 
+          <span v-else-if="scope.row.sourceType === 5">Github</span> 
+          <span v-else>未知</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="integration" header-align="center" align="center" label="积分"></el-table-column>
       <el-table-column prop="growth" header-align="center" align="center" label="成长值"></el-table-column>
       <el-table-column prop="status" header-align="center" align="center" label="启用状态">
